@@ -1,9 +1,7 @@
 package com.major.assignmentportal_v1_0.controller;
 
-import com.major.assignmentportal_v1_0.entities.Student;
-import com.major.assignmentportal_v1_0.entities.StudentAssignment;
-import com.major.assignmentportal_v1_0.entities.Teacher;
-import com.major.assignmentportal_v1_0.entities.TeacherAssignment;
+import com.major.assignmentportal_v1_0.entities.*;
+import com.major.assignmentportal_v1_0.repository.AdminRepo;
 import com.major.assignmentportal_v1_0.repository.StudentAssignmentRepo;
 import com.major.assignmentportal_v1_0.repository.TeacherAssignmentRepo;
 import com.major.assignmentportal_v1_0.repository.TeacherRepo;
@@ -39,6 +37,8 @@ public class TeacherController extends Teacher {
     private TeacherAssignmentRepo teacherAssignmentRepo;
     @Autowired
     private StudentAssignmentRepo studentAssignmentRepo;
+    @Autowired
+    private AdminRepo adminRepo;
 
     @GetMapping("")
     public String home(){
@@ -56,6 +56,7 @@ public class TeacherController extends Teacher {
     public String register(@ModelAttribute("teacher") Teacher teacher){
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         teacher.setTch_password(encoder.encode(teacher.getTch_password()));
+        teacher.setAdmin(adminRepo.findById("admin").orElse(new Admin()));
         teacherRepo.save(teacher);
         return "html/assignment_portal_home";
     }
@@ -131,43 +132,50 @@ public class TeacherController extends Teacher {
         return "html/teacher_view_assignment";
     }
 
-   /* @GetMapping("evaluate_assignments")
+    @GetMapping("evaluate_assignments")
     public String evaluateAssignment(Model model,@RequestParam("tch_id") String tch_id){
-        List<TeacherAssignment> teacherAssignmentList = teacherAssignmentRepo.findAll();
-        String assignment_id = "";
-        for(TeacherAssignment teacherAssignment : teacherAssignmentList){
-            if(teacherAssignment.getTch_id().equals(tch_id)){
-                assignment_id = teacherAssignment.getAssignment_id();
-                break;
-            }
-        }
-
-        String subject_name = teacherAssignmentRepo.findById(assignment_id).orElse(new TeacherAssignment()).getSubject_name();
         List<StudentAssignment> studentAssignmentList = studentAssignmentRepo.findAll();
         List<StudentAssignment> evaluationAssignmentList = new ArrayList<>();
+        StudentAssignment studentAssignment = new StudentAssignment();
 
-        for (StudentAssignment studentAssignment : studentAssignmentList) {
-            if (studentAssignment.getSubject_name().equals(subject_name)) {
-                evaluationAssignmentList.add(studentAssignment);
-            }
+        for (StudentAssignment assignment : studentAssignmentList) {
+            evaluationAssignmentList.add(assignment);
         }
+        model.addAttribute("assignment", new StudentAssignment());
         model.addAttribute("evaluationAssignmentList", evaluationAssignmentList);
         model.addAttribute("tch_id", tch_id);
 
         return "html/evaluation_submitted_assignment";
-
     }
 
     @PostMapping("marking")
     public String marking(Model model,
+                          @ModelAttribute("assignment") StudentAssignment studentAssignment,
                           @RequestParam("tch_id") String tch_id,
-                          @RequestParam("evaluationAssignmentList") List<StudentAssignment> evaluationAssignmentList){
+                          @RequestParam("assignment_id") String assignment_id){
+
+
+        List<StudentAssignment> studentAssignmentList = studentAssignmentRepo.findAll();
+
+        List<StudentAssignment> evaluationAssignmentList = new ArrayList<>();
+
+        for (StudentAssignment assignment : studentAssignmentList) {
+            if (assignment.getAssignment_id().equals(assignment_id)) {
+                assignment.setMark(studentAssignment.getMark());
+                studentAssignmentRepo.save(assignment);
+            }
+            evaluationAssignmentList.add(assignment);
+        }
+
         model.addAttribute("evaluationAssignmentList", evaluationAssignmentList);
+        model.addAttribute("assignment", new StudentAssignment());
+
         model.addAttribute("tch_id", tch_id);
 
         return "html/evaluation_submitted_assignment";
     }
-*/
+
+
 //    VIEW submitted assignments by his students
 
 

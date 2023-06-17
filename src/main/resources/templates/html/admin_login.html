@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>student_assignment_upload</title>
+    <title>admin_login</title>
     <style>
         body{
             margin: 0;
@@ -12,7 +12,6 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100%;
-
         }
         h1{
             margin: auto;
@@ -46,7 +45,7 @@
             text-align: center;
             width: 40%;
             margin: auto;
-            margin-top: 5%;
+            margin-top: 10%;
             border: 3px white solid;
             border-radius: 60px;
             opacity: 0.5;
@@ -54,8 +53,8 @@
         .form-div{
             margin: 25px;
         }
-        .form-div label{
-            font-size: 20px;
+        .form-div input{
+            font-size: 18px;
             font-weight: bolder;
             font-family: "Arial Rounded MT Bold";
         }
@@ -77,27 +76,21 @@
     </style>
 </head>
 <body>
-<div style="width: 61%; margin: auto; color: #fa5353;">
-    <h1>UPLOAD YOUR ASSIGNMENT ANSWER</h1>
+<div style="width: 55%; margin: auto">
+    <h1> WELCOME TO ADMIN DASHBOARD</h1>
 </div>
-
 <div>
-    <form action="#" th:action="@{student_ans_assign(student_id=${student_id}, assignment_id=${assignment_id})}" method="post" th:object="${studentAssignment}" enctype="multipart/form-data">
-        <h3 style="font-size: 25px; color: white">Upload Assignments</h3>
+    <form action="#" th:action="@{admin_login}" method="post" th:object="${admin}">
+        <h3 style="font-size: 25px; color: white">Login Form</h3>
         <div class="form-div">
-            <div>
-                <label> Upload Answer File </label>
-            </div>
-            <input type="file" name="file">
+            <input type="text" placeholder="Admin Id" th:field="*{admin_id}">
         </div>
         <div class="form-div">
-            <input type="text" placeholder="Comment" th:field="*{comment}">
+            <input type="password" placeholder="Admin Password" th:field="*{admin_password}">
         </div>
-
         <div id="btn" class="form-div">
-            <button type="submit">Submit</button>
+            <button type="submit">Login</button>
         </div>
-
     </form>
 </div>
 </body>

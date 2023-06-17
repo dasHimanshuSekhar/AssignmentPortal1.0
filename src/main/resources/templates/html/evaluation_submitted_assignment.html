@@ -54,21 +54,19 @@
   <thead>
   <tr>
     <th>Student Name</th>
-    <th>Subject Name</th>
     <th>Assignment Answer File</th>
     <th>Comment</th>
     <th>Mark</th>
   </tr>
   </thead>
   <tbody>
-  <tr th:each="evaluationAssignment : ${evaluationAssignmentList}">
-<!--    <td th:text="${evaluationAssignment.getStudent().std_name}"></td>-->
-    <td th:text="${evaluationAssignment.subject_name}"></td>
-    <td><a th:href="@{'/assignment_portal/teacher_assignment_file/' + ${evaluationAssignment.assignment_id}}" target="_blank" th:text="'Download ' + ${evaluationAssignment.assignment_name}"></a></td>
-    <td th:text="${evaluationAssignment.comment}"></td>
+  <tr th:each="assignment : ${evaluationAssignmentList}">
+    <td th:text="${assignment.getStudent().std_name}"></td>
+    <td><a th:href="@{'/assignment_portal/teacher_assignment_file/' + ${assignment.assignment_file}}" target="_blank" th:text="'Download ' + ${assignment.assignment_name}"></a></td>
+    <td th:text="${assignment.comment}"></td>
     <td>
-      <form action="#" th:action="@{marking(tch_id=${tch_id}, evaluationAssignmentList=${evaluationAssignmentList})}" method="post" th:object="${evaluationAssignment}">
-<!--        <input type="text" th:field="*{mark}" placeholder="marking">-->
+      <form action="#" th:action="@{/marking(tch_id=${tch_id}, assignment_id=${assignment.assignment_id})}" method="post" th:object="${assignment}">
+        <input type="text" th:field="*{mark}">
         <button type="submit">update</button>
       </form>
     </td>

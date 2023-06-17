@@ -31,4 +31,5 @@ public class StudentAssignment {
 
     @ManyToOne
     private Teacher teacher;
+
 }

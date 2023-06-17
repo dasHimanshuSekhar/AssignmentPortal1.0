@@ -1,13 +1,7 @@
 package com.major.assignmentportal_v1_0.controller;
 
-import com.major.assignmentportal_v1_0.entities.Student;
-import com.major.assignmentportal_v1_0.entities.StudentAssignment;
-import com.major.assignmentportal_v1_0.entities.Teacher;
-import com.major.assignmentportal_v1_0.entities.TeacherAssignment;
-import com.major.assignmentportal_v1_0.repository.StudentAssignmentRepo;
-import com.major.assignmentportal_v1_0.repository.StudentRepo;
-import com.major.assignmentportal_v1_0.repository.TeacherAssignmentRepo;
-import com.major.assignmentportal_v1_0.repository.TeacherRepo;
+import com.major.assignmentportal_v1_0.entities.*;
+import com.major.assignmentportal_v1_0.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +33,8 @@ public class StudentController {
     private TeacherAssignmentRepo teacherAssignmentRepo;
     @Autowired
     private TeacherRepo teacherRepo;
+    @Autowired
+    private AdminRepo adminRepo;
 
     @GetMapping("load_student_registration_form")
     public String loadRegisterForm(Model model){
@@ -51,6 +47,7 @@ public class StudentController {
     public String register(@ModelAttribute("teacher") Student student){
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         student.setStd_password(encoder.encode(student.getStd_password()));
+        student.setAdmin(adminRepo.findById("admin").orElse(new Admin()));
         studentRepo.save(student);
         return "html/assignment_portal_home";
     }
@@ -79,34 +76,19 @@ public class StudentController {
     @GetMapping("view_new_assignment")
     public String viewNewAssignment(Model model, @RequestParam("student_id") String studentId){
         List<TeacherAssignment> teacherAssignmentList = teacherAssignmentRepo.findAll();
-        List<TeacherAssignment> teacherAssignmentListResult = studentRepo.findById(studentId).orElse(new Student()).getTeacherAssignmentList();
-//        String subject_name = studentRepo.findById(studentId).orElse(new Student()).getSubject_name();
+        List<TeacherAssignment> teacherAssignmentListResult = new ArrayList<>();
+        String subject_name = studentRepo.findById(studentId).orElse(new Student()).getSubject_name();
 
-//        for (TeacherAssignment teacherAssignment : teacherAssignmentList) {
-//            if (teacherAssignment.getTeacher().getSubject_name().equals(subject_name)) {
-//                teacherAssignmentListResult.add(teacherAssignment);
-//            }
-//        }
+        for (TeacherAssignment teacherAssignment : teacherAssignmentList) {
+            if (teacherAssignment.getTeacher().getSubject_name().equals(subject_name)) {
+                teacherAssignmentListResult.add(teacherAssignment);
+            }
+        }
 
         model.addAttribute("assignments", teacherAssignmentListResult);
 //        model.addAttribute("subject_name", subject_name);
         model.addAttribute("student_id", studentId);
         return "html/student_view_new_assignment";
-    }
-
-    @GetMapping("view_submitted_assignment")
-    public String viewSubmittedAssignment(Model model, @RequestParam("student_id") String studentId){
-        List<StudentAssignment> studentAssignmentList = studentAssignmentRepo.findAll();
-        List<StudentAssignment> studentAssignmentListResult = new ArrayList<>();
-        for (StudentAssignment studentAssignment : studentAssignmentList) {
-            if (studentAssignment.getStudent().getStd_id().equals(studentId)) {
-                studentAssignmentListResult.add(studentAssignment);
-            }
-        }
-
-        model.addAttribute("assignments", studentAssignmentListResult);
-        model.addAttribute("student_id", studentId);
-        return "html/student_view_submitted_assignment";
     }
 
     @GetMapping("student_load_upload_assignment")
@@ -124,52 +106,76 @@ public class StudentController {
     }
 
 
-//    @PostMapping("student_ans_assign")
-//    public String assign(@ModelAttribute("studentAssignment") StudentAssignment studentAssignment,
-//                         @RequestParam("student_id") String stdId,
-//                         @RequestParam("subject_name") String subjectName,
-//                         @RequestParam("assignment_name") String assignmentName,
-//                         @RequestParam("assignment_id") String assignment_id,
-//                         Model model,
-//                         @RequestParam("file")MultipartFile assignment_file) throws IOException {
-//
-//        File file = new File("D:\\CODE\\JAVA\\JAVA WEB SERVICE\\AssignmentPortal1.0\\src\\main\\resources\\templates\\file\\temp_ans.pdf");
-//        assignment_file.transferTo(file);
-//        byte[] byteFile = new byte[(int) file.length()];
-//        FileInputStream inputStream = new FileInputStream(file);
-//        inputStream.read(byteFile);
-//        inputStream.close();
-//        studentAssignment.setAssignment_file(convertByteArrayToObjectArray(byteFile));
-//        System.out.println("assigned !!");
-//
-//
-//        studentAssignment.setAssignment_name(assignmentName.substring(1));
-//        studentAssignment.setAssignment_id(assignment_id);
-//
-//        studentAssignment.setStudent(studentRepo.findById(stdId).orElse(new Student()));
-//
-//        studentAssignmentRepo.save(studentAssignment);
-//        model.addAttribute("student_id", studentAssignment.getStudent().getStd_id());
-//        return "html/student_dashboard";
-//    }
 
-//    @GetMapping("std_delete_submitted_assignment/{assignment_id}")
-//    public String deleteAssignment(@PathVariable String assignment_id, Model model){
-//        String studentId = studentAssignmentRepo.findById(assignment_id).orElse(new StudentAssignment()).getStudent().getStd_id();
-//        studentAssignmentRepo.deleteById(assignment_id);
-////        String std_name = studentRepo.findById(studentId).orElse(new Student()).getStd_name();
-//        List<StudentAssignment> studentAssignmentList = studentAssignmentRepo.findAll();
-//        List<StudentAssignment> studentAssignmentListResult = new ArrayList<>();
-//        for (StudentAssignment studentAssignment : studentAssignmentList) {
-//            if (studentAssignment.getStudent().getStd_id().equals(studentId)) {
-//                studentAssignmentListResult.add(studentAssignment);
-//            }
-//        }
-////        model.addAttribute("std_name", std_name);
-//        model.addAttribute("assignments", studentAssignmentListResult);
-//        model.addAttribute("assignment_id", assignment_id);
-//        return "html/student_view_submitted_assignment";
-//    }
+    @PostMapping("student_ans_assign")
+    public String assign(@ModelAttribute("studentAssignment") StudentAssignment studentAssignment,
+                         @RequestParam("student_id") String stdId,
+                         @RequestParam("assignment_id") String assignment_id,
+                         Model model,
+                         @RequestParam("file")MultipartFile assignment_file) throws IOException {
+
+        TeacherAssignment teacherAssignment = teacherAssignmentRepo.findById(assignment_id).orElse(new TeacherAssignment());
+
+        File file = new File("D:\\CODE\\JAVA\\JAVA WEB SERVICE\\AssignmentPortal1.0\\src\\main\\resources\\templates\\file\\temp_ans.pdf");
+        assignment_file.transferTo(file);
+        byte[] byteFile = new byte[(int) file.length()];
+        FileInputStream inputStream = new FileInputStream(file);
+        inputStream.read(byteFile);
+        inputStream.close();
+        studentAssignment.setAssignment_file(convertByteArrayToObjectArray(byteFile));
+        System.out.println("assigned !!");
+
+
+        studentAssignment.setAssignment_name(teacherAssignment.getAssignment_name());
+        studentAssignment.setAssignment_id(assignment_id);
+
+        studentAssignment.setStudent(studentRepo.findById(stdId).orElse(new Student()));
+        studentAssignment.setTeacher(teacherRepo.findById(teacherAssignment.getTeacher().getTch_id()).orElse(new Teacher()));
+        teacherAssignment.setStudent(studentRepo.findById(stdId).orElse(new Student()));
+
+        studentAssignmentRepo.save(studentAssignment);
+        model.addAttribute("student_id", studentAssignment.getStudent().getStd_id());
+        return "html/student_dashboard";
+
+    }
+
+
+    @GetMapping("view_submitted_assignment")
+    public String viewSubmittedAssignment(Model model, @RequestParam("student_id") String studentId){
+        List<StudentAssignment> studentAssignmentList = studentAssignmentRepo.findAll();
+        List<StudentAssignment> studentAssignmentListResult = new ArrayList<>();
+
+        for (StudentAssignment studentAssignment : studentAssignmentList) {
+            if (studentAssignment.getStudent().getStd_id().equals(studentId)) {
+                studentAssignmentListResult.add(studentAssignment);
+            }
+        }
+
+        model.addAttribute("assignments", studentAssignmentListResult);
+        model.addAttribute("student_id", studentId);
+        return "html/student_view_submitted_assignment";
+    }
+
+
+    @GetMapping("std_delete_submitted_assignment/{assignment_id}")
+    public String deleteAssignment(@PathVariable String assignment_id, Model model){
+        String studentId = studentAssignmentRepo.findById(assignment_id).orElse(new StudentAssignment()).getStudent().getStd_id();
+        studentAssignmentRepo.deleteById(assignment_id);
+
+        List<StudentAssignment> studentAssignmentList = studentAssignmentRepo.findAll();
+        List<StudentAssignment> studentAssignmentListResult = new ArrayList<>();
+
+        for (StudentAssignment studentAssignment : studentAssignmentList) {
+            if (studentAssignment.getStudent().getStd_id().equals(studentId)) {
+                studentAssignmentListResult.add(studentAssignment);
+            }
+        }
+
+        model.addAttribute("assignments", studentAssignmentListResult);
+        model.addAttribute("assignment_id", assignment_id);
+        return "html/student_view_submitted_assignment";
+    }
+
 
     @GetMapping("student_assignment_file/{assignment_id}")
     public ResponseEntity<ByteArrayResource> downloadAssgnmentFile(@PathVariable String assignment_id) throws IOException{

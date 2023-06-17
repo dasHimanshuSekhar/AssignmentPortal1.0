@@ -25,4 +25,7 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<TeacherAssignment> teacherAssignmentList = new ArrayList<>();
+
+    @ManyToOne
+    private Admin admin;
 }
