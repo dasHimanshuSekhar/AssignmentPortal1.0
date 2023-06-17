@@ -14,4 +14,7 @@
        --Assignment Upload (Assign to students) to specific students
        View all assignments uploaded under a specific teacher
        Delete assignments
+    3) Admin:
+        --Login
+        --View Credential
 
