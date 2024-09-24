@@ -1,19 +1,18 @@
->>> ACTORS - Students, Teachers
+ACTORS - Students, Teachers
 
->>> Functionalities (API'S) -
+Functionalities (API'S) -
     1) Students:
-       --Register
-       --Login
-       Assignment Answer Upload (Submit to teacher) to specific teachers
-       View all assignments uploaded under a specific teacher
-       Delete assignments
- 
+        --Register
+        --Login
+            Assignment Answer Upload (Submit to teacher) to specific teachers
+            View all assignments uploaded under a specific teacher
+            Delete assignments
     2) Teacher:
-       --Register
-       --Login
-       --Assignment Upload (Assign to students) to specific students
-       View all assignments uploaded under a specific teacher
-       Delete assignments
+        --Register
+        --Login
+        --Assignment Upload (Assign to students) to specific students
+            View all assignments uploaded under a specific teacher
+            Delete assignments
     3) Admin:
         --Login
         --View Credential
